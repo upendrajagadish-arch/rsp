@@ -356,7 +356,7 @@ section.passport-phones-hero {
 /* —— Admin HR dashboard (Talvex / Modern HR) —— */
 .admin-hr,
 .admin-hr * {
-  font-family: "Sofia Pro Regular", "Sofia Pro Medium", "Manrope", sans-serif;
+  font-family: "Manrope", "Inter Tight", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

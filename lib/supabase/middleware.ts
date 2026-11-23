@@ -9,8 +9,8 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/admin") ||
     path.startsWith("/recruiter");
 
-  if (isDemoMode()) {
-    const demoEmail = request.cookies.get(DEMO_COOKIE)?.value;
+  const demoEmail = request.cookies.get(DEMO_COOKIE)?.value;
+  if (demoEmail || isDemoMode()) {
     if (isProtected && !demoEmail) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";

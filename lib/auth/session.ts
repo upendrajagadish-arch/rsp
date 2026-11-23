@@ -25,12 +25,15 @@ export type SessionContext = {
 };
 
 export async function getSessionContext(): Promise<SessionContext | null> {
+  const jar = await cookies();
+  const demoEmail = jar.get(DEMO_COOKIE)?.value;
+  if (demoEmail) {
+    const session = demoSessionByEmail(demoEmail);
+    if (session) return { ...session, demo: true };
+  }
+
   if (isDemoMode()) {
-    const jar = await cookies();
-    const email = jar.get(DEMO_COOKIE)?.value;
-    if (!email) return null;
-    const session = demoSessionByEmail(email);
-    return session ? { ...session, demo: true } : null;
+    return null;
   }
 
   try {
