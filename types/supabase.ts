@@ -19,6 +19,19 @@ export type CertificatePipelineStatus =
   | "complete"
   | "failed";
 export type JobStatus = "queued" | "processing" | "needs_review" | "completed" | "failed" | "cancelled";
+export type AchievementStatus =
+  | "locked"
+  | "submitted"
+  | "verified"
+  | "rejected"
+  | "revoked";
+export type PhysicalStampStatus =
+  | "eligible"
+  | "awaiting_allocation"
+  | "ready_for_collection"
+  | "issued"
+  | "replacement_requested"
+  | "cancelled";
 
 export type Database = {
   __InternalSupabase: {
@@ -552,6 +565,8 @@ export type Database = {
       evidence_source: EvidenceSource;
       job_status: JobStatus;
       certificate_pipeline_status: CertificatePipelineStatus;
+      achievement_status: AchievementStatus;
+      physical_stamp_status: PhysicalStampStatus;
     };
     CompositeTypes: {
       [_ in never]: never;

@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { Student360 } from "@/lib/admin/types";
 import { studentPhoto } from "@/lib/admin/student-photos";
 import { AdminGlass } from "@/components/admin/admin-theme-shell";
+import { AdminPassportPanel } from "@/components/passport/admin-passport-panel";
 import { VerificationStamp } from "@/components/product/verification-stamp";
+import type { SkillPassportBundle } from "@/lib/passport/types";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -19,11 +21,18 @@ const TABS = [
   "projects",
   "placement",
   "activity",
+  "passport",
 ] as const;
 
 type Tab = (typeof TABS)[number];
 
-export function Student360View({ data }: { data: Student360 }) {
+export function Student360View({
+  data,
+  passportBundle,
+}: {
+  data: Student360;
+  passportBundle: SkillPassportBundle | null;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = (searchParams.get("tab") as Tab | null) ?? "overview";
@@ -344,6 +353,17 @@ export function Student360View({ data }: { data: Student360 }) {
             ))
           )}
         </ol>
+      ) : null}
+
+      {tab === "passport" ? (
+        passportBundle ? (
+          <AdminPassportPanel
+            initialBundle={passportBundle}
+            studentProfileId={profile.id}
+          />
+        ) : (
+          <Empty>Skill Passport data is unavailable for this student.</Empty>
+        )
       ) : null}
     </div>
   );

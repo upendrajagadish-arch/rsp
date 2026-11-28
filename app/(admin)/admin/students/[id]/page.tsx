@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Student360View } from "@/components/admin/student-360";
 import { requireSession } from "@/lib/auth/session";
 import { getAdminStudent360 } from "@/services/admin-intelligence";
+import { getSkillPassport } from "@/services/skill-passport";
 
 export default async function AdminStudent360Page({
   params,
@@ -13,6 +14,7 @@ export default async function AdminStudent360Page({
   const { id } = await params;
   const data = await getAdminStudent360(session.organizationId, id);
   if (!data) notFound();
+  const passportBundle = await getSkillPassport(id, "administrator");
 
   return (
     <Suspense
@@ -22,7 +24,7 @@ export default async function AdminStudent360Page({
         </div>
       }
     >
-      <Student360View data={data} />
+      <Student360View data={data} passportBundle={passportBundle} />
     </Suspense>
   );
 }

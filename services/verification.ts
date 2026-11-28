@@ -192,5 +192,24 @@ export async function institutionReview(params: {
   });
 
   await recalculateStudentSkills(cert.student_profile_id);
+
+  try {
+    const { ensureAchievementFromCertificate } = await import("@/services/skill-passport");
+    await ensureAchievementFromCertificate({
+      studentProfileId: cert.student_profile_id,
+      organizationId: cert.organization_id,
+      certificateId: cert.id,
+      title: cert.title || "Certificate",
+      issuer: cert.issuing_organization,
+      completedOn: cert.issued_on,
+      status:
+        params.decision === "institution_reviewed" ? "verified" : "rejected",
+      actorId: params.reviewerId,
+      reason: params.notes,
+    });
+  } catch {
+    // Passport stamp sync must not block institutional review
+  }
+
   return { ok: true };
 }

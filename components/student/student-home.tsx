@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LogOut } from "lucide-react";
 import {
@@ -73,12 +74,17 @@ export type StudentHomeData = {
   milestones: CircuitCheckpoint[];
 };
 
-const NAV_ITEMS: { id: Exclude<StudentHomePanel, null>; label: string }[] = [
+const NAV_ITEMS: {
+  id: Exclude<StudentHomePanel, null> | "my-passport";
+  label: string;
+  href?: string;
+}[] = [
   { id: "overview", label: "Overview" },
   { id: "skills", label: "Evidence" },
   { id: "journey", label: "Journey" },
   { id: "certificates", label: "Certificates" },
-  { id: "passport", label: "Passport" },
+  { id: "my-passport", label: "My Passport", href: "/student/my-passport" },
+  { id: "passport", label: "Share card" },
   { id: "projects", label: "Projects" },
   { id: "settings", label: "Edit profile" },
 ];
@@ -245,14 +251,24 @@ export function StudentHome({ data }: { data: StudentHomeData }) {
 
         {/* One continuous nav row — same style, no icons, no duplicate Journey */}
         <nav className="flex items-center gap-5 overflow-x-auto pb-1 text-sm md:justify-center md:gap-7">
-          {NAV_ITEMS.map((item) => (
-            <NavButton
-              key={item.id}
-              label={item.label}
-              active={panel === item.id}
-              onClick={() => openPanel(item.id)}
-            />
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item.href ? (
+              <Link
+                key={item.id}
+                href={item.href}
+                className="shrink-0 text-sm tracking-tight text-white/65 transition-colors hover:text-white"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <NavButton
+                key={item.id}
+                label={item.label}
+                active={panel === item.id}
+                onClick={() => openPanel(item.id as Exclude<StudentHomePanel, null>)}
+              />
+            ),
+          )}
         </nav>
       </header>
 
