@@ -2,13 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buildPassportGalleryItems, type PassportGalleryItem } from "@/lib/passport/gallery-items";
-import type { PassportAchievement, SkillPassportBundle } from "@/lib/passport/types";
+import type { SkillPassportBundle } from "@/lib/passport/types";
 import { PassportGalleryScene } from "@/components/passport/passport-gallery-scene";
 import { cn } from "@/lib/utils";
 
 type Props = {
   bundle: SkillPassportBundle;
-  onOpenAchievement: (a: PassportAchievement | null, lockedCode?: string) => void;
   onBackToCover: () => void;
 };
 
@@ -17,7 +16,7 @@ type Mode = "gallery" | "page" | "list";
 const SMALL_MQ =
   "(max-width: 819px), (orientation: portrait) and (max-width: 1100px), (orientation: landscape) and (max-height: 500px)";
 
-export function PassportGallery({ bundle, onOpenAchievement, onBackToCover }: Props) {
+export function PassportGallery({ bundle, onBackToCover }: Props) {
   const items = useMemo(() => buildPassportGalleryItems(bundle), [bundle]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<PassportGalleryScene | null>(null);
@@ -27,7 +26,6 @@ export function PassportGallery({ bundle, onOpenAchievement, onBackToCover }: Pr
   const [ready, setReady] = useState(false);
   const [focused, setFocused] = useState<number | null>(null);
   const [pageItem, setPageItem] = useState<PassportGalleryItem | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collection, setCollection] = useState<PassportGalleryItem[]>([]);
   const [pill, setPill] = useState<{ x: number; y: number; show: boolean }>({
@@ -35,12 +33,8 @@ export function PassportGallery({ bundle, onOpenAchievement, onBackToCover }: Pr
     y: 0,
     show: false,
   });
-  const [paper, setPaper] = useState("Art Paper");
-  const [size, setSize] = useState('11.7 × 16.5" (A3)');
-  const [qty, setQty] = useState(1);
   const [hintFocus, setHintFocus] = useState(false);
-
-  const verified = items.filter((i) => i.status === "verified");
+  const id = bundle.identity;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -114,7 +108,6 @@ export function PassportGallery({ bundle, onOpenAchievement, onBackToCover }: Pr
 
   function closeToGallery(itemIndex: number) {
     setMode("gallery");
-    setShowDetails(false);
     setPageItem(null);
     requestAnimationFrame(() => {
       sceneRef.current?.focusNearestOuter(itemIndex);
@@ -126,19 +119,7 @@ export function PassportGallery({ bundle, onOpenAchievement, onBackToCover }: Pr
   function openPage(item: PassportGalleryItem) {
     setPageItem(item);
     setMode("page");
-    setShowDetails(false);
     setPill((p) => ({ ...p, show: false }));
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.setTimeout(() => setShowDetails(true), reduce ? 0 : 1000);
-  }
-
-  function addToCollection(item: PassportGalleryItem) {
-    setCollection((prev) => {
-      const existing = prev.find((p) => p.index === item.index);
-      if (existing) return prev;
-      return [...prev, item];
-    });
-    setDrawerOpen(true);
   }
 
   return (
@@ -300,107 +281,69 @@ export function PassportGallery({ bundle, onOpenAchievement, onBackToCover }: Pr
         OPEN THE STAMP
       </div>
 
-      {/* Stamp detail page */}
+      {/* Stamp detail — course, completion date, student only */}
       <section className={cn("pg-page", mode === "page" && pageItem && "is-open")}>
         {pageItem ? (
-          <div className="pg-page-wrap">
-            <div className="pg-page-left">
-              <div className="pg-page-art" style={{ borderColor: pageItem.colour }}>
+          <div className="pg-stamp-detail">
+            <button
+              type="button"
+              className="pg-stamp-back"
+              onClick={() => closeToGallery(pageItem.index)}
+            >
+              ← Back to gallery
+            </button>
+
+            <div className="pg-stamp-card">
+              <div className="pg-stamp-visual">
                 <StampPoster item={pageItem} />
               </div>
-              <div className="pg-page-meta">
-                <span>1/1</span>
-                <span>View in corridor</span>
-                <span>{pageItem.stampCode}</span>
-              </div>
-            </div>
-            <div className={cn("pg-page-right", showDetails && "is-shown")}>
-              <h2>{pageItem.title}</h2>
-              <p className="pg-artist">{pageItem.artist}</p>
-              <p className="pg-desc">{pageItem.description}</p>
-              <p className="pg-price">{pageItem.priceLabel}</p>
-              <p className="pg-tax">
-                {bundle.identity.fullName} · {bundle.identity.organizationName}
-              </p>
 
-              <OptionGroup
-                label="Paper"
-                value={paper}
-                options={["Art Paper", "Fine Art Paper", "Recycled Paper"]}
-                onChange={setPaper}
-              />
-              <OptionGroup
-                label="Size"
-                value={size}
-                options={[
-                  '11.7 × 16.5" (A3)',
-                  '16.5 × 23.4" (A2)',
-                  '23.4 × 33.1" (A1)',
-                  '33.1 × 46.8" (A0)',
-                ]}
-                onChange={setSize}
-              />
+              <div className="pg-stamp-fields">
+                <p className="pg-stamp-kicker">Stamp details</p>
 
-              <div className="pg-buy">
-                <div className="pg-qty">
-                  <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))}>
-                    −
-                  </button>
-                  <span>{qty}</span>
-                  <button type="button" onClick={() => setQty((q) => Math.min(9, q + 1))}>
-                    +
-                  </button>
+                <dl className="pg-stamp-dl">
+                  <div>
+                    <dt>Course / achievement</dt>
+                    <dd>{pageItem.title}</dd>
+                  </div>
+                  <div>
+                    <dt>Date of completion</dt>
+                    <dd>
+                      {pageItem.achievement?.completedOn?.slice(0, 10) ??
+                        (pageItem.status === "locked" ? "Not completed yet" : "—")}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="pg-stamp-student">
+                  <p className="pg-stamp-kicker">Student</p>
+                  <dl className="pg-stamp-dl">
+                    <div>
+                      <dt>Name</dt>
+                      <dd>{id.fullName}</dd>
+                    </div>
+                    <div>
+                      <dt>Roll number</dt>
+                      <dd>{id.rollNumber ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt>Programme</dt>
+                      <dd>{id.degree ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt>Branch</dt>
+                      <dd>{id.branch ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt>Academic year</dt>
+                      <dd>{id.academicYear ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt>Passport</dt>
+                      <dd>{id.passportNumber}</dd>
+                    </div>
+                  </dl>
                 </div>
-                <button
-                  type="button"
-                  className="pg-add"
-                  onClick={() => {
-                    addToCollection(pageItem);
-                    if (pageItem.achievement) onOpenAchievement(pageItem.achievement);
-                    else onOpenAchievement(null, pageItem.stampCode);
-                  }}
-                >
-                  ADD TO COLLECTION
-                </button>
-              </div>
-
-              <Accordion
-                rows={[
-                  {
-                    title: "Stamp status",
-                    body: `Status: ${pageItem.status}. Year: ${pageItem.year}. Code: ${pageItem.stampCode}.`,
-                  },
-                  {
-                    title: "Evidence",
-                    body: pageItem.description,
-                  },
-                  {
-                    title: "Institution",
-                    body: `${bundle.identity.organizationName}. Booklet ${bundle.identity.passportNumber}.`,
-                  },
-                ]}
-              />
-            </div>
-
-            <div className={cn("pg-collection-band", showDetails && "is-shown")}>
-              <h3>GET THE COLLECTION</h3>
-              <div className="pg-band-row">
-                {[0, 1, 2, 3].map((off) => {
-                  const it = items[(pageItem.index + off) % items.length];
-                  return (
-                    <button
-                      key={it.index}
-                      type="button"
-                      className="pg-band-card"
-                      onClick={() => openPage(it)}
-                    >
-                      <StampPoster item={it} compact />
-                      <p className="pg-band-title">{it.title}</p>
-                      <p className="pg-band-artist">{it.artist}</p>
-                      <p className="pg-band-price">{it.priceLabel}</p>
-                    </button>
-                  );
-                })}
               </div>
             </div>
           </div>
@@ -486,53 +429,3 @@ function StampPoster({
   );
 }
 
-function OptionGroup({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="pg-opts">
-      <p>
-        {label}: <span>{value}</span>
-      </p>
-      <div className="pg-chips">
-        {options.map((o) => (
-          <button
-            key={o}
-            type="button"
-            className={cn(value === o && "is-on")}
-            onClick={() => onChange(o)}
-          >
-            {o}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Accordion({ rows }: { rows: { title: string; body: string }[] }) {
-  const [open, setOpen] = useState<number | null>(null);
-  return (
-    <div className="pg-acc">
-      {rows.map((r, i) => (
-        <div key={r.title} className={cn("pg-acc-row", open === i && "is-open")}>
-          <button type="button" onClick={() => setOpen(open === i ? null : i)}>
-            <span>{r.title}</span>
-            <span className="pg-acc-plus">+</span>
-          </button>
-          <div className="pg-acc-body">
-            <p>{r.body}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}

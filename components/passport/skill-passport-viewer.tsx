@@ -3,13 +3,8 @@
 import { useEffect, useState } from "react";
 import { PassportCover } from "@/components/passport/passport-cover";
 import { PassportGallery } from "@/components/passport/passport-gallery";
-import { AchievementDetailsModal } from "@/components/passport/achievement-details-modal";
 import { AchievementStamp } from "@/components/passport/stamps/achievement-stamp";
-import type {
-  PassportAchievement,
-  PassportViewerMode,
-  SkillPassportBundle,
-} from "@/lib/passport/types";
+import type { PassportViewerMode, SkillPassportBundle } from "@/lib/passport/types";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -27,9 +22,6 @@ export function SkillPassportViewer({
 }: Props) {
   const [opened, setOpened] = useState(false);
   const [opening, setOpening] = useState(false);
-  const [detail, setDetail] = useState<PassportAchievement | null>(null);
-  const [lockedCode, setLockedCode] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
   const [unlockQueue, setUnlockQueue] = useState(bundle.pendingUnlockIds);
   const [showUnlock, setShowUnlock] = useState(false);
 
@@ -41,12 +33,6 @@ export function SkillPassportViewer({
     if (!opened) return;
     onPersistPage?.(1);
   }, [opened, onPersistPage]);
-
-  function openAchievement(a: PassportAchievement | null, code?: string) {
-    setDetail(a);
-    setLockedCode(code ?? null);
-    setModalOpen(true);
-  }
 
   function dismissUnlock() {
     const ids = unlockQueue;
@@ -99,11 +85,7 @@ export function SkillPassportViewer({
           {viewerMode === "administrator" ? (
             <p className="pg-admin-flag">Admin passport gallery</p>
           ) : null}
-          <PassportGallery
-            bundle={bundle}
-            onOpenAchievement={openAchievement}
-            onBackToCover={closeToCover}
-          />
+          <PassportGallery bundle={bundle} onBackToCover={closeToCover} />
         </div>
       )}
 
@@ -135,13 +117,6 @@ export function SkillPassportViewer({
           </div>
         </div>
       ) : null}
-
-      <AchievementDetailsModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        achievement={detail}
-        lockedCode={lockedCode}
-      />
     </div>
   );
 }

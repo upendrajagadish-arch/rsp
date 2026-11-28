@@ -1251,6 +1251,77 @@ section.passport-phones-hero {
   pointer-events: auto;
 }
 
+.pg-stamp-detail {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: calc(96 * var(--w)) calc(48 * var(--w)) calc(48 * var(--w));
+}
+
+.pg-stamp-back {
+  font-family: var(--pg-mono);
+  font-size: max(11px, calc(11 * var(--w)));
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 2px;
+  margin-bottom: calc(28 * var(--w));
+  min-height: 24px;
+}
+
+.pg-stamp-card {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) 1fr;
+  gap: calc(36 * var(--w));
+  align-items: start;
+  background: #fffefa;
+  border: 1px solid #d8c398;
+  padding: calc(28 * var(--w));
+}
+
+.pg-stamp-visual {
+  width: 100%;
+}
+
+.pg-stamp-kicker {
+  margin: 0 0 calc(12 * var(--w));
+  font-family: var(--pg-mono);
+  font-size: max(11px, calc(10 * var(--w)));
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b69a59;
+}
+
+.pg-stamp-dl {
+  margin: 0;
+}
+
+.pg-stamp-dl > div {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(216, 195, 152, 0.45);
+}
+
+.pg-stamp-dl dt {
+  font-family: var(--pg-mono);
+  font-size: max(11px, calc(10 * var(--w)));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+}
+
+.pg-stamp-dl dd {
+  margin: 0;
+  font-family: var(--pg-serif);
+  font-size: max(14px, calc(16 * var(--w)));
+  color: #08182d;
+}
+
+.pg-stamp-student {
+  margin-top: calc(28 * var(--w));
+  padding-top: calc(8 * var(--w));
+}
+
 .pg-page-wrap {
   padding-top: calc(96 * var(--w));
   display: grid;
@@ -1744,6 +1815,14 @@ section.passport-phones-hero {
   .pg-toggle {
     right: 16px;
     bottom: 30px;
+  }
+
+  .pg-stamp-detail {
+    padding: 72px 20px 40px;
+  }
+
+  .pg-stamp-card {
+    grid-template-columns: 1fr;
   }
 
   .pg-page-wrap {
